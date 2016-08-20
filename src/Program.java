@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,6 +24,8 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 public class Program {
 
@@ -42,14 +45,18 @@ public class Program {
 			Document document = builder.parse(fileIterator.next());
 			XPath xPath = XPathFactory.newInstance().newXPath();
 			Node node = (Node) xPath.evaluate("/DOC/TEXT", document, XPathConstants.NODE);
-			data.add(node.getTextContent().replaceAll("(?m)^[ \t]*\r?\n", "").replaceAll("\n", ""));
+			data.add(node.getTextContent().replaceAll("(?m)^[ \t]*\r?\n", "")
+						 .replaceAll("\n", " ").replaceAll("\\s\\s+", " ").trim().toLowerCase());
 		}
 		
-		try {
-			writeLines(Paths.get("").toAbsolutePath().toString() + "/resource/data.txt", data);
-		} catch (Exception e) {
-			e.printStackTrace();
+		Tokenizer tokenizer = new Tokenizer();
+		
+		for (String text: data) {
+			tokenizer.tokenize(text, "[a-z0-9]+");
 		}
+				
+		tokenizer.sort();
+		System.out.println(tokenizer.getTokens());
 	}
 	
 	public static void writeLines(String path, List<String> data) throws IOException {

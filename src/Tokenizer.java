@@ -1,0 +1,52 @@
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+public class Tokenizer {
+	
+	private Map<String, Integer> tokens;
+	
+	public Tokenizer() {
+		this.tokens = new LinkedHashMap<String, Integer>();
+	}
+	
+	public Map<String, Integer> getTokens() {
+		return tokens;
+	}
+	
+	public void tokenize(String str, String regex) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(str);
+		
+		while (matcher.find()) {
+			if (tokens.containsKey(matcher.group())) {
+				tokens.put(matcher.group(), tokens.get(matcher.group()) + 1);
+			} else {
+				tokens.put(matcher.group(), 1);
+			}
+		}
+	}
+	
+	public <K, V extends Comparable<? super Integer>> void sort() {
+		Map<String, Integer> result = new LinkedHashMap<>();
+		Stream<Map.Entry<String, Integer>> stream = tokens.entrySet().stream();
+		stream.sorted(Map.Entry.comparingByValue())
+			  .forEachOrdered(x -> result.put(x.getKey(), x.getValue()));
+		updateTokens(result);
+	}
+	
+	private void updateTokens(Map<String, Integer> map) {
+		tokens.clear();
+		List<Entry<String, Integer>> entries = new ArrayList<>(map.entrySet());
+		
+		for (int i = entries.size() - 1; i >= 0; i--) {
+			Entry<String, Integer> entry = entries.get(i);
+			tokens.put(entry.getKey(), entry.getValue());
+		}
+	}
+}
