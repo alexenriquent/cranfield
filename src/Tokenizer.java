@@ -41,12 +41,47 @@ public class Tokenizer {
 	}
 	
 	private void updateTokens(Map<String, Integer> map) {
-		tokens.clear();
 		List<Entry<String, Integer>> entries = new ArrayList<>(map.entrySet());
+		tokens.clear();
 		
 		for (int i = entries.size() - 1; i >= 0; i--) {
 			Entry<String, Integer> entry = entries.get(i);
 			tokens.put(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	public int wordCount() {
+		int result = 0;
+		
+		for (Entry<String, Integer> entry: tokens.entrySet()) {
+			result += entry.getValue();
+		}
+		
+		return result;
+	}
+	
+	public int vocabularySize() {
+		return tokens.size();
+	}
+	
+	public Map<String, Integer> topRank() {
+		int rank = 50;
+		List<Entry<String, Integer>> entries = new ArrayList<>(tokens.entrySet());
+		Map<String, Integer> result = new LinkedHashMap<>();
+		
+		for (int i = 0; i < rank; i++) {
+			Entry<String, Integer> entry = entries.get(i);
+			result.put(entry.getKey(), entry.getValue());
+		}
+		
+		return result;
+	}
+	
+	public void removeStopwords(String stopwords[]) {
+		for (int i = 0; i < stopwords.length; i++) {
+			if (tokens.containsKey(stopwords[i])) {
+				tokens.remove(stopwords[i]);
+			}
+		}	
 	}
 }

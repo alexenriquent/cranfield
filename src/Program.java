@@ -1,74 +1,32 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.parsers.*;
+import javax.xml.xpath.*;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import com.sun.xml.internal.ws.util.StringUtils;
 
 public class Program {
 
-	public static void main(String[] args) throws ParserConfigurationException, IOException,
-												  XPathExpressionException, SAXException {
+	public static void main(String[] args) throws ParserConfigurationException, 
+											SAXException, XPathExpressionException, IOException {
 		
-		File directory = new File(Paths.get("").toAbsolutePath().toString() + "/resource/cranfield");
-		RegexFileFilter fileFilter = new RegexFileFilter("^(.*?)"); 
-		Collection<File> files = FileUtils.listFiles(directory, fileFilter, DirectoryFileFilter.DIRECTORY);	
-		Iterator<File> fileIterator = files.iterator();
-		List<String> data = new LinkedList<String>();
+		File directory = new File(args[0]);
+		File stopwordsPath = new File(args[1]);
 		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		
-		while (fileIterator.hasNext()) {
-			Document document = builder.parse(fileIterator.next());
-			XPath xPath = XPathFactory.newInstance().newXPath();
-			Node node = (Node) xPath.evaluate("/DOC/TEXT", document, XPathConstants.NODE);
-			data.add(node.getTextContent().replaceAll("(?m)^[ \t]*\r?\n", "")
-						 .replaceAll("\n", " ").replaceAll("\\s\\s+", " ").trim().toLowerCase());
-		}
+		Collection<File> files = IO.scanDirectory(directory);
+		List<String> data = IO.extractData(files);
 		
 		Tokenizer tokenizer = new Tokenizer();
-		
-		for (String text: data) {
-			tokenizer.tokenize(text, "[a-z0-9]+");
+
+		for (String entry: data) {
+			tokenizer.tokenize(entry, "[a-z0-9]+");
 		}
 				
 		tokenizer.sort();
-		System.out.println(tokenizer.getTokens());
-	}
-	
-	public static void writeLines(String path, List<String> data) throws IOException {
-		FileWriter file = new FileWriter(path);
-		BufferedWriter buffer = new BufferedWriter(file);
-		Iterator<String> iterator = data.iterator();
-		
-		while (iterator.hasNext()) {
-			buffer.write(iterator.next());
-			buffer.newLine();
-		}
-		
-		buffer.close();
+		IO.writeLines(new File("statistics01.txt"), IO.parseOutput(tokenizer));
+
+		tokenizer.removeStopwords(IO.readFile(stopwordsPath));
+		IO.writeLines(new File("statistics02.txt"), IO.parseOutput(tokenizer));
 	}
 }

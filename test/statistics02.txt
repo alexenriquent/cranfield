@@ -1,0 +1,54 @@
+The number of distinct words: 7166
+The total number of words: 109877
+The top 50 frequent words:
+flow 1517
+pressure 1092
+boundary 970
+number 914
+results 873
+layer 842
+mach 733
+theory 706
+method 638
+shock 638
+surface 551
+obtained 536
+heat 503
+body 495
+velocity 482
+temperature 478
+solution 468
+wing 466
+1 455
+made 449
+equations 445
+ratio 442
+0 424
+effects 424
+presented 423
+found 422
+conditions 397
+experimental 378
+range 372
+jet 371
+transfer 367
+case 363
+reynolds 359
+distribution 354
+effect 353
+shown 347
+problem 337
+plate 332
+analysis 331
+numbers 331
+stream 328
+laminar 322
+solutions 319
+data 316
+supersonic 305
+free 304
+lift 303
+wave 300
+air 293
+small 293
+
