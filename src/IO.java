@@ -74,17 +74,4 @@ public class IO {
 		
 		return data;
 	}
-	
-	public static String parseOutput(Tokenizer tokenizer) {
-		String output = "";
-		output = output.concat("The number of distinct words: " + tokenizer.vocabularySize() + "\n")
-				.concat("The total number of words: " + tokenizer.wordCount() + "\n")
-				.concat("The top 50 frequent words:\n");
-		
-		for (Map.Entry<String, Integer> entry: tokenizer.topRank().entrySet()) {
-			output = output.concat(entry.getKey() + " " + entry.getValue() + "\n");
-		}
-		
-		return output;
-	}
 }
