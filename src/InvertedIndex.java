@@ -43,6 +43,28 @@ public class InvertedIndex {
 		}
 	}
 	
+	public void generateAll(List<String> strList, String regex) {
+		for (int i = 0; i < strList.size(); i++) {
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(strList.get(i));
+			
+			while (matcher.find()) {
+				if (invertedIndex.containsKey(matcher.group())) {
+					if (invertedIndex.get(matcher.group()).containsKey(i + 1)) {
+						invertedIndex.get(matcher.group()).put(i + 1, 
+						invertedIndex.get(matcher.group()).get(i + 1) + 1);
+					} else {
+						invertedIndex.get(matcher.group()).put(i + 1, 1);
+					}
+				} else {
+					Map<Integer, Integer> statistics = new HashMap<Integer, Integer>();
+					statistics.put(i + 1, 1);
+					invertedIndex.put(matcher.group(), statistics);
+				}
+			}
+		}
+	}
+	
 	public void removeStopwords(String stopwords[]) {
 		for (int i = 0; i < stopwords.length; i++) {
 			if (invertedIndex.containsKey(stopwords[i])) {

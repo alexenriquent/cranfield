@@ -8,7 +8,7 @@ import javax.xml.xpath.*;
 import org.xml.sax.SAXException;
 
 public class Program {
-
+	
 	public static void main(String[] args) throws ParserConfigurationException, 
 											SAXException, XPathExpressionException, IOException {
 		
@@ -25,15 +25,11 @@ public class Program {
 		List<String> data = IO.extractData(files);
 		
 		InvertedIndex invertedIndex = new InvertedIndex();
-		
-		for (int i = 0; i < data.size(); i++) {
-			invertedIndex.generate(i + 1, data.get(i), "[a-z0-9]+");
-		}
-		
+
+		invertedIndex.generateAll(data, "[a-z0-9]+");
 		invertedIndex.removeStopwords(IO.readFile(stopwordsPath));
-		
-		System.out.println("\nEnter a search query after the command prompt >");
-		System.out.println("Type #quit to exit.\n");
+
+		printInstructions();
 				
 		do {
 			System.out.print("> ");
@@ -44,21 +40,31 @@ public class Program {
 			String keywords[] = query.toLowerCase().split("\\s+");
 			Map<Integer, Integer> scores = invertedIndex.computeScores(keywords);
 			List<Integer> topDocuments = invertedIndex.topDocuments(scores);
+
+			printResults(query, scores, topDocuments);
 			
-			if (!topDocuments.isEmpty()) {
-				if (topDocuments.size() > 1) {
-					System.out.println(topDocuments.size() + " from " + scores.size() + " results: ");
-				} else {
-					System.out.println(topDocuments.size() + " from " + scores.size() + " result: ");
-				}
-				for (Integer id : topDocuments) {
-					System.out.println(id);
-				}
-			} else {
-				System.out.println("No results containing these search terms were found.");
-				System.out.println("The query \"" + query + "\"" + " did not match any documents.");
-			}
-			System.out.print("\n");
 		} while (true);		
+	}
+	
+	public static void printInstructions() {
+		System.out.println("\nEnter a search query after the command prompt >");
+		System.out.println("Type #quit to exit.\n");
+	}
+	
+	public static void printResults(String query, Map<Integer, Integer> scores, List<Integer> topDocuments) {
+		if (!topDocuments.isEmpty()) {
+			if (topDocuments.size() > 1) {
+				System.out.println(topDocuments.size() + " from " + scores.size() + " results: ");
+			} else {
+				System.out.println(topDocuments.size() + " from " + scores.size() + " result: ");
+			}
+			for (Integer id : topDocuments) {
+				System.out.println(id);
+			}
+		} else {
+			System.out.println("No results containing these search terms were found.");
+			System.out.println("The query \"" + query + "\"" + " did not match any documents.");
+		}
+		System.out.print("\n");
 	}
 }
