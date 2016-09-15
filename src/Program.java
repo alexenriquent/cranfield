@@ -30,8 +30,8 @@ public class Program {
 		invertedIndex.removeStopwords(IO.readFile(stopwordsPath));
 
 		printInstructions();
-				
-		do {
+						
+		while (true) {
 			System.out.print("> ");
 			String query = scanner.nextLine();
 			
@@ -39,11 +39,13 @@ public class Program {
 			
 			String keywords[] = query.toLowerCase().split("\\s+");
 			Map<Integer, Integer> scores = invertedIndex.computeScores(keywords);
-			List<Integer> topDocuments = invertedIndex.topDocuments(scores);
+			double start = System.nanoTime();
+			List<Integer> topDocuments = invertedIndex.topDocuments(invertedIndex.computeScores(keywords));
+			double finish = System.nanoTime();
+			double elapsed = (finish - start) / 10e5;
 
-			printResults(query, scores, topDocuments);
-			
-		} while (true);		
+			printResults(query, scores, topDocuments, elapsed);	
+		}		
 	}
 	
 	public static void printInstructions() {
@@ -51,17 +53,22 @@ public class Program {
 		System.out.println("Type #quit to exit.\n");
 	}
 	
-	public static void printResults(String query, Map<Integer, Integer> scores, List<Integer> topDocuments) {
+	public static void printResults(String query, Map<Integer, Integer> scores, 
+									List<Integer> topDocuments, double elapsed) {
 		if (!topDocuments.isEmpty()) {
 			if (topDocuments.size() > 1) {
-				System.out.println(topDocuments.size() + " from " + scores.size() + " results: ");
+				System.out.println(topDocuments.size() + " from " + scores.size() 
+											+ " results (" + elapsed + " ms): ");
 			} else {
-				System.out.println(topDocuments.size() + " from " + scores.size() + " result: ");
+				System.out.println(topDocuments.size() + " from " + scores.size() 
+											+ " result (" + elapsed + " ms): ");
 			}
 			for (Integer id : topDocuments) {
 				System.out.println(id);
 			}
 		} else {
+			System.out.println(topDocuments.size() + " from " + scores.size() 
+										+ " result (" + elapsed + " ms)");
 			System.out.println("No results containing these search terms were found.");
 			System.out.println("The query \"" + query + "\"" + " did not match any documents.");
 		}

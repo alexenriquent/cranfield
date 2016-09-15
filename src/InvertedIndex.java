@@ -74,23 +74,29 @@ public class InvertedIndex {
 	}
 	
 	public Map<Integer, Integer> computeScores(String keywords[]) {
-		Map<Integer, Integer> scores = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> scores = new HashMap<Integer, Integer>();;
 		
 		for (int i = 0; i < keywords.length; i++) {
 			if (invertedIndex.containsKey(keywords[i])) {
-				for (Entry<Integer, Integer> entry : invertedIndex.get(keywords[i]).entrySet()) {
-					if (scores.containsKey(entry.getKey())) {
-						scores.put(entry.getKey(), scores.get(entry.getKey()) + entry.getValue());
-					} else {
-						scores.put(entry.getKey(), entry.getValue());
+				if (i == 0) {
+					scores = new HashMap<Integer, Integer>(invertedIndex.get(keywords[i]));
+				} else {
+					Map<Integer, Integer> temp = new HashMap<Integer, Integer>(invertedIndex.get(keywords[i]));
+					scores.keySet().retainAll(temp.keySet());
+					for (Entry<Integer, Integer> entry : temp.entrySet()) {
+						if (scores.containsKey(entry.getKey())) {
+							scores.put(entry.getKey(), scores.get(entry.getKey()) + entry.getValue());
+						}
 					}
 				}
+			} else {
+				scores.clear();
+				return scores;
 			}
-		}
-		
+		}	
 		return sortScores(scores);
 	}
-	
+
 	private <K, V extends Comparable<? super Integer>> 
 	 		Map<Integer, Integer> sortScores(Map<Integer, Integer> scores) {
 		return scores.entrySet()
