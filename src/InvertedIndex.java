@@ -23,47 +23,28 @@ public class InvertedIndex {
 		return invertedIndex;
 	}
 	
-	public void generate(int id, String str, String regex) {
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(str);
-		
-		while (matcher.find()) {
-			if (invertedIndex.containsKey(matcher.group())) {
-				if (invertedIndex.get(matcher.group()).containsKey(id)) {
-					invertedIndex.get(matcher.group()).put(id, 
-					invertedIndex.get(matcher.group()).get(id) + 1);
-				} else {
-					invertedIndex.get(matcher.group()).put(id, 1);
-				}
-			} else {
-				Map<Integer, Integer> statistics = new HashMap<Integer, Integer>();
-				statistics.put(id, 1);
-				invertedIndex.put(matcher.group(), statistics);
-			}
-		}
-	}
-	
-	public void generateAll(List<String> strList, String regex) {
-		for (int i = 0; i < strList.size(); i++) {
+	public void generate(Map<Integer, String> data, String regex) {
+		for (Entry<Integer, String> entry : data.entrySet()) {
 			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(strList.get(i));
+			Matcher matcher = pattern.matcher(entry.getValue());
 			
 			while (matcher.find()) {
 				if (invertedIndex.containsKey(matcher.group())) {
-					if (invertedIndex.get(matcher.group()).containsKey(i + 1)) {
-						invertedIndex.get(matcher.group()).put(i + 1, 
-						invertedIndex.get(matcher.group()).get(i + 1) + 1);
+					if (invertedIndex.get(matcher.group()).containsKey(entry.getKey())) {
+						invertedIndex.get(matcher.group()).put(entry.getKey(), 
+						invertedIndex.get(matcher.group()).get(entry.getKey()) + 1);
 					} else {
-						invertedIndex.get(matcher.group()).put(i + 1, 1);
+						invertedIndex.get(matcher.group()).put(entry.getKey(), 1);
 					}
 				} else {
 					Map<Integer, Integer> statistics = new HashMap<Integer, Integer>();
-					statistics.put(i + 1, 1);
+					statistics.put(entry.getKey(), 1);
 					invertedIndex.put(matcher.group(), statistics);
 				}
 			}
 		}
 	}
+
 	
 	public void removeStopwords(String stopwords[]) {
 		for (int i = 0; i < stopwords.length; i++) {

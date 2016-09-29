@@ -22,13 +22,14 @@ public class Program {
 		
 		File directory = new File(Paths.get("").toAbsolutePath().toString() + "/" + corpus);
 		Collection<File> files = IO.scanDirectory(directory);
-		List<String> data = IO.extractData(files);
 		
+		Map<Integer, String> data = IO.extractData(files);
+
 		InvertedIndex invertedIndex = new InvertedIndex();
-
-		invertedIndex.generateAll(data, "[a-z0-9]+");
+		
+		invertedIndex.generate(data, "[a-z0-9]+");
 		invertedIndex.removeStopwords(IO.readFile(stopwordsPath));
-
+		
 		printInstructions();
 						
 		while (true) {

@@ -53,10 +53,10 @@ public class IO {
 		return files;
 	}
 	
-	public static List<String> extractData(Collection<File> files) 
+	public static Map<Integer, String> extractData(Collection<File> files) 
 			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		Iterator<File> fileIterator = files.iterator();
-		List<String> data = new ArrayList<String>();
+		Map<Integer, String> data = new LinkedHashMap<Integer, String>();
 			
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
@@ -64,8 +64,14 @@ public class IO {
 		while (fileIterator.hasNext()) {
 			Document document = builder.parse(fileIterator.next());
 			XPath xPath = XPathFactory.newInstance().newXPath();
+			Node nodeID = (Node) xPath.evaluate("/DOC/DOCNO", document, XPathConstants.NODE);
 			Node node = (Node) xPath.evaluate("/DOC/TEXT", document, XPathConstants.NODE);
-			data.add(node.getTextContent()
+			data.put(Integer.parseInt(nodeID.getTextContent()
+					.replaceAll("(?m)^[ \t]*\r?\n", "")
+					.replaceAll("\n", " ")
+					.replaceAll("\\s\\s+", " ")
+					.trim()), 
+					node.getTextContent()
 					.replaceAll("(?m)^[ \t]*\r?\n", "")
 					.replaceAll("\n", " ")
 					.replaceAll("\\s\\s+", " ")
