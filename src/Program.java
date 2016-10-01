@@ -25,9 +25,7 @@ public class Program {
 		Collection<File> files = IO.scanDirectory(directory);
 		
 		Map<Integer, String> data = IO.extractData(files);
-		
-		double s = System.nanoTime();
-		
+				
 		VectorSpaceModel vectorSpaceModel = new VectorSpaceModel(data, IO.readFile(stopwordsPath));
 		
 		vectorSpaceModel.createVectorSpaceModel();
@@ -38,10 +36,25 @@ public class Program {
 		for (Entry<Integer, Double[]> entry : vectorSpaceModel.getVectorSpaceModel().entrySet()) {
 			System.out.println(Arrays.toString(entry.getValue()));
 		}
-
-		double f = System.nanoTime();
-		double e = (f - s) / 10e5;
-				
-		System.out.println(e);
+		
+		String keywords[] = {"flow", "study"};
+		
+		System.out.println(vectorSpaceModel.search(keywords));
+		
+//		printInstructions();
+//
+//		while (true) {
+//			System.out.print("> ");
+//			String query = scanner.nextLine();
+//			
+//			if (query.equalsIgnoreCase("#quit")) break;
+//			
+//			String keywords[] = query.toLowerCase().split("\\s+");
+//		}
+	}
+	
+	public static void printInstructions() {
+		System.out.println("\nEnter a search query after the command prompt >");
+		System.out.println("Type #quit to exit.\n");
 	}
 }
