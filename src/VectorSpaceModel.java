@@ -129,10 +129,10 @@ public class VectorSpaceModel {
 		return normalisedVector;
 	}
 	
-	public Map<Integer, Double> search(String query[]) {
+	public Map<Integer, Double> search(String keywords[]) {
 		Map<Integer, Double> documents = new LinkedHashMap<>();
 		List<Integer> indices = new ArrayList<Integer>();
-		Double[] normalisedVector = tranformQuery(query, indices);
+		Double[] normalisedVector = tranformQuery(keywords, indices);
 
 		if (!indices.isEmpty()) {
 			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
@@ -149,12 +149,12 @@ public class VectorSpaceModel {
 		return documents;
 	}
 	
-//	public Map<Integer, Double> search(String query[]) {
+//	public Map<Integer, Double> search(String keywords[]) {
 //		Map<Integer, Double> documents = new LinkedHashMap<>();
 //		List<Integer> indices = new ArrayList<Integer>();
-//		Double[] normalisedVector = tranformQuery(query, indices);
+//		Double[] normalisedVector = tranformQuery(keywords, indices);
 //
-//		if (indices.size() == query.length) {
+//		if (indices.size() == keywords.length) {
 //			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
 //				if (relevant(indices, entry.getValue())) {
 //					double cosine = 0.0;
@@ -184,15 +184,15 @@ public class VectorSpaceModel {
 		return false;
 	}
 	
-	public Map<Integer, Double> searchInvertedIndex(String query[]) {
+	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
 		Map<Integer, Double> documents = new LinkedHashMap<>();
 		List<Integer> indices = new ArrayList<Integer>();
-		Double[] normalisedVector = tranformQuery(query, indices);
+		Double[] normalisedVector = tranformQuery(keywords, indices);
 		
 		if (!indices.isEmpty()) {
-			for (int i = 0; i < query.length; i++) {
-				if (invertedIndex.getInvertedIndex().containsKey(query[i])) {
-					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(query[i]).entrySet()) {
+			for (int i = 0; i < keywords.length; i++) {
+				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
+					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(keywords[i]).entrySet()) {
 						if (!documents.containsKey(entry.getKey())) {
 							double cosine = 0.0;
 							for (Integer index : indices) {
@@ -208,15 +208,15 @@ public class VectorSpaceModel {
 		return documents;
 	}
 	
-//	public Map<Integer, Double> searchInvertedIndex(String query[]) {
+//	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
 //		Map<Integer, Double> documents = new LinkedHashMap<>();
 //		List<Integer> indices = new ArrayList<Integer>();
-//		Double[] normalisedVector = tranformQuery(query, indices);
+//		Double[] normalisedVector = tranformQuery(keywords, indices);
 //
-//		if (indices.size() == query.length) {
-//			for (int i = 0; i < query.length; i++) {
-//				if (invertedIndex.getInvertedIndex().containsKey(query[i])) {
-//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(query[i]).entrySet()) {
+//		if (indices.size() == keywords.length) {
+//			for (int i = 0; i < keywords.length; i++) {
+//				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
+//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(keywords[i]).entrySet()) {
 //						if (!documents.containsKey(entry.getKey())) {
 //							double cosine = 0.0;
 //							for (Integer index : indices) {
