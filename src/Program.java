@@ -20,6 +20,7 @@ public class Program {
 		
 		System.out.print("Enter directory: ");
 		String corpus = scanner.nextLine();
+		System.out.println();
 		
 		File directory = new File(Paths.get("").toAbsolutePath().toString() + "/" + corpus);
 		Collection<File> files = IO.scanDirectory(directory);
@@ -56,9 +57,7 @@ public class Program {
 //		System.out.println();
 
 		while (true) {
-			System.out.println("\n(1) Search using the vector space model");
-			System.out.println("(2) Search using the vector space model and inverted index\n");
-			System.out.println("Type #quit to exit.\n");
+			printOptions();
 			System.out.print("> ");
 			String option = scanner.nextLine();
 			
@@ -94,10 +93,16 @@ public class Program {
 					printResults(query2, documents, topDocuments);
 					break;
 				default:
-					System.out.println("\nInvalid option.");
+					System.out.println("\nInvalid option.\n");
 					break;
 			}			
 		}
+	}
+	
+	public static void printOptions() {
+		System.out.println("(1) Search using the vector space model");
+		System.out.println("(2) Search using the vector space model and inverted index\n");
+		System.out.println("Type #quit to exit.\n");
 	}
 	
 	public static void printInstructions() {
@@ -109,18 +114,15 @@ public class Program {
 									List<Integer> topDocuments) {
 		if (!topDocuments.isEmpty()) {
 			if (topDocuments.size() == 1) {
-				System.out.println(topDocuments.size() + " from " + documents.size() 
-												+ " result: ");
+				System.out.println(topDocuments.size() + " from " + documents.size() + " result: ");
 			} else {
-				System.out.println(topDocuments.size() + " from " + documents.size() 
-												+ " results: ");
+				System.out.println(topDocuments.size() + " from " + documents.size() + " results: ");
 			}
-			for (Integer id : topDocuments) {
-				System.out.println(id);
+			for (int i = 0; i < topDocuments.size(); i++) {
+				System.out.println("Rank " + (i + 1) + ": Cranfield " + topDocuments.get(i));
 			}
 		} else {
-			System.out.println(topDocuments.size() + " from " + documents.size() 
-												+ " result");
+			System.out.println(topDocuments.size() + " from " + documents.size() + " result");
 			System.out.println("No results containing these search terms were found.");
 			System.out.println("The query \"" + query + "\"" + " did not match any documents.");
 		}
