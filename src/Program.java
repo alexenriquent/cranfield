@@ -64,8 +64,8 @@ public class Program {
 				System.out.println(topDocuments.size() + " from " + scores.size() 
 											+ " result (" + elapsed + " ms): ");
 			}
-			for (Integer id : topDocuments) {
-				System.out.println(id);
+			for (int i = 0; i < topDocuments.size(); i++) {
+				System.out.println("Rank " + (i + 1) + ": Cranfield " + topDocuments.get(i));
 			}
 		} else {
 			System.out.println(topDocuments.size() + " from " + scores.size() 
