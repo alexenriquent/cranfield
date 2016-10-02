@@ -1,14 +1,18 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class VectorSpaceModel {
 	
 	private static final int RANK = 1000;
+	private static final int MAX_DOCUMENTS = 10;
 	private int totalDocuments;
 	
 	private Tokeniser tokeniser;
@@ -80,53 +84,6 @@ public class VectorSpaceModel {
 		}
 	}
 	
-	private Double[] normaliseQuery(Double[] vector) {
-		Double[] normalisedVector = new Double[vector.length];
-		System.arraycopy(vector, 0, normalisedVector, 0, vector.length);
-		
-		double denominator = 0.0;
-		for (int i = 0; i < vector.length; i++) {
-			denominator += (vector[i] * vector[i]);
-		}
-		
-		for (int i = 0; i < vector.length; i++) {
-			double normalisedWeight = vector[i] / Math.sqrt(denominator);
-			normalisedVector[i] = normalisedWeight;
-		}
-		
-		return normalisedVector;
-	}
-	
-	public Map<Integer, Double> search(String keywords[]) {
-		Map<Integer, Double> documents = new LinkedHashMap<>();
-		List<Integer> indices = new ArrayList<Integer>();
-
-		Double[] normalisedVector = tranformQuery(keywords, indices);
-
-		if (!indices.isEmpty()) {
-			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
-				if (relevant(indices, entry.getValue())) {
-					double cosine = 0.0;
-					for (Integer index : indices) {
-						cosine += normalisedVector[index] * entry.getValue()[index];
-					}
-					documents.put(entry.getKey(), cosine);
-				}
-			}
-		}
-		
-		return documents;
-	}
-	
-	private boolean relevant(List<Integer> indices, Double[] vector) {
-		for (Integer index : indices) {
-			if (vector[index] > 0.0) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	private Double[] tranformQuery(String keywords[], List<Integer> indices) {
 		Map<String, Integer> terms = new HashMap<String, Integer>();
 		Double[] vector = new Double[dictionary.size()];
@@ -153,5 +110,153 @@ public class VectorSpaceModel {
 			return normaliseQuery(vector);
 		}	
 		return vector;
+	}
+	
+	private Double[] normaliseQuery(Double[] vector) {
+		Double[] normalisedVector = new Double[vector.length];
+		System.arraycopy(vector, 0, normalisedVector, 0, vector.length);
+		
+		double denominator = 0.0;
+		for (int i = 0; i < vector.length; i++) {
+			denominator += (vector[i] * vector[i]);
+		}
+		
+		for (int i = 0; i < vector.length; i++) {
+			double normalisedWeight = vector[i] / Math.sqrt(denominator);
+			normalisedVector[i] = normalisedWeight;
+		}
+		
+		return normalisedVector;
+	}
+	
+	public Map<Integer, Double> search(String query[]) {
+		Map<Integer, Double> documents = new LinkedHashMap<>();
+		List<Integer> indices = new ArrayList<Integer>();
+		Double[] normalisedVector = tranformQuery(query, indices);
+
+		if (!indices.isEmpty()) {
+			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
+				if (relevant(indices, entry.getValue())) {
+					double cosine = 0.0;
+					for (Integer index : indices) {
+						cosine += normalisedVector[index] * entry.getValue()[index];
+					}
+					documents.put(entry.getKey(), cosine);
+				}
+			}
+		}
+		
+		return documents;
+	}
+	
+//	public Map<Integer, Double> search(String query[]) {
+//		Map<Integer, Double> documents = new LinkedHashMap<>();
+//		List<Integer> indices = new ArrayList<Integer>();
+//		Double[] normalisedVector = tranformQuery(query, indices);
+//
+//		if (indices.size() == query.length) {
+//			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
+//				if (relevant(indices, entry.getValue())) {
+//					double cosine = 0.0;
+//					for (Integer index : indices) {
+//						if (entry.getValue()[index] == 0.0) {
+//							cosine = 0.0;
+//							break;
+//						}
+//						cosine += normalisedVector[index] * entry.getValue()[index];
+//					}
+//					if (cosine > 0.0) {
+//						documents.put(entry.getKey(), cosine);
+//					}
+//				}
+//			}
+//		}
+//		
+//		return documents;
+//	}
+	
+	private boolean relevant(List<Integer> indices, Double[] vector) {
+		for (Integer index : indices) {
+			if (vector[index] > 0.0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Map<Integer, Double> searchInvertedIndex(String query[]) {
+		Map<Integer, Double> documents = new LinkedHashMap<>();
+		List<Integer> indices = new ArrayList<Integer>();
+		Double[] normalisedVector = tranformQuery(query, indices);
+		
+		if (!indices.isEmpty()) {
+			for (int i = 0; i < query.length; i++) {
+				if (invertedIndex.getInvertedIndex().containsKey(query[i])) {
+					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(query[i]).entrySet()) {
+						if (!documents.containsKey(entry.getKey())) {
+							double cosine = 0.0;
+							for (Integer index : indices) {
+								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
+							}
+							documents.put(entry.getKey(), cosine);
+						}
+					}
+				}
+			}
+		}
+		
+		return documents;
+	}
+	
+//	public Map<Integer, Double> searchInvertedIndex(String query[]) {
+//		Map<Integer, Double> documents = new LinkedHashMap<>();
+//		List<Integer> indices = new ArrayList<Integer>();
+//		Double[] normalisedVector = tranformQuery(query, indices);
+//
+//		if (indices.size() == query.length) {
+//			for (int i = 0; i < query.length; i++) {
+//				if (invertedIndex.getInvertedIndex().containsKey(query[i])) {
+//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(query[i]).entrySet()) {
+//						if (!documents.containsKey(entry.getKey())) {
+//							double cosine = 0.0;
+//							for (Integer index : indices) {
+//								if (vectorSpaceModel.get(entry.getKey())[index] == 0.0) {
+//									cosine = 0.0;
+//									break;
+//								}
+//								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
+//							}	
+//							if (cosine > 0.0) {
+//								documents.put(entry.getKey(), cosine);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		
+//		return documents;
+//	}
+
+	public <K, V extends Comparable<? super Double>> Map<Integer, Double> sort(Map<Integer, Double> documents) {
+		return documents.entrySet().stream()
+				.sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+				.collect(Collectors.toMap(
+						Map.Entry::getKey, 
+						Map.Entry::getValue, 
+						(x1, x2) -> x1, 
+						LinkedHashMap::new
+						));
+	}
+	
+	public List<Integer> topDocuments(Map<Integer, Double> documents) {
+		List<Integer> topDocuments = new LinkedList<Integer>();
+		
+		for (Entry<Integer, Double> entry : documents.entrySet()) {
+			if (topDocuments.size() == MAX_DOCUMENTS) break;
+			topDocuments.add(entry.getKey());
+		}
+		
+		return topDocuments;
 	}
 }
