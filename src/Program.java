@@ -31,30 +31,6 @@ public class Program {
 		
 		vectorSpaceModel.createVectorSpaceModel();
 		vectorSpaceModel.normalise();
-		
-//		System.out.println(vectorSpaceModel.getDictionary());
-				
-//		for (Entry<Integer, Double[]> entry : vectorSpaceModel.getVectorSpaceModel().entrySet()) {
-//			System.out.println(Arrays.toString(entry.getValue()));
-//		}
-		
-//		String keyword[] = {"pressure", "flow", "theory"};
-//		
-//		double s1 = System.nanoTime();
-//		Map<Integer, Double> document1 = vectorSpaceModel.sort(vectorSpaceModel.search(keyword));
-//		List<Integer> topDocuments1 = vectorSpaceModel.topDocuments(document1);
-//		double e1 = System.nanoTime();
-//		System.out.println(topDocuments1);
-//
-//		double s2 = System.nanoTime();
-//		Map<Integer, Double> document2 = vectorSpaceModel.sort(vectorSpaceModel.searchInvertedIndex(keyword));
-//		List<Integer> topDocuments2 = vectorSpaceModel.topDocuments(document2);
-//		double e2 = System.nanoTime();
-//		System.out.println(topDocuments2);
-//		
-//		System.out.println((e1 - s1) / 10e5);
-//		System.out.println((e2 - s2) / 10e5);
-//		System.out.println();
 
 		while (true) {
 			printOptions();
@@ -66,6 +42,7 @@ public class Program {
 			String keywords[];
 			Map<Integer, Double> documents;
 			List<Integer> topDocuments;
+			double start, finish, elapsed;
 			
 			switch (option) {
 				case "1":
@@ -75,10 +52,13 @@ public class Program {
 					
 					if (query1.equalsIgnoreCase("#back")) break;
 					
+					start = System.nanoTime();
 					keywords = query1.toLowerCase().split("\\s+");
 					documents = vectorSpaceModel.sort(vectorSpaceModel.search(keywords));
 					topDocuments = vectorSpaceModel.topDocuments(documents);
-					printResults(query1, documents, topDocuments);
+					finish = System.nanoTime();
+					elapsed = (finish - start) / 10e5;
+					printResults(query1, documents, topDocuments, elapsed);
 					break;
 				case "2":
 					printInstructions();
@@ -87,10 +67,13 @@ public class Program {
 					
 					if (query2.equalsIgnoreCase("#back")) break;
 					
+					start = System.nanoTime();
 					keywords = query2.toLowerCase().split("\\s+");
-					documents = vectorSpaceModel.sort(vectorSpaceModel.search(keywords));
+					documents = vectorSpaceModel.sort(vectorSpaceModel.searchInvertedIndex(keywords));
 					topDocuments = vectorSpaceModel.topDocuments(documents);
-					printResults(query2, documents, topDocuments);
+					finish = System.nanoTime();
+					elapsed = (finish - start) / 10e5;
+					printResults(query2, documents, topDocuments, elapsed);
 					break;
 				default:
 					System.out.println("\nInvalid option.\n");
@@ -111,18 +94,18 @@ public class Program {
 	}
 	
 	public static void printResults(String query, Map<Integer, Double> documents, 
-									List<Integer> topDocuments) {
+									List<Integer> topDocuments, double elapsed) {
 		if (!topDocuments.isEmpty()) {
 			if (topDocuments.size() == 1) {
-				System.out.println(topDocuments.size() + " from " + documents.size() + " result: ");
+				System.out.println(topDocuments.size() + " from " + documents.size() + " result (" + elapsed + " ms):");
 			} else {
-				System.out.println(topDocuments.size() + " from " + documents.size() + " results: ");
+				System.out.println(topDocuments.size() + " from " + documents.size() + " results (" + elapsed + " ms):");
 			}
 			for (int i = 0; i < topDocuments.size(); i++) {
 				System.out.println("Rank " + (i + 1) + ": Cranfield " + topDocuments.get(i));
 			}
 		} else {
-			System.out.println(topDocuments.size() + " from " + documents.size() + " result");
+			System.out.println(topDocuments.size() + " from " + documents.size() + " result (" + elapsed + " ms):");
 			System.out.println("No results containing these search terms were found.");
 			System.out.println("The query \"" + query + "\"" + " did not match any documents.");
 		}

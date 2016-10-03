@@ -129,26 +129,6 @@ public class VectorSpaceModel {
 		return normalisedVector;
 	}
 	
-//	public Map<Integer, Double> search(String keywords[]) {
-//		Map<Integer, Double> documents = new LinkedHashMap<>();
-//		List<Integer> indices = new ArrayList<Integer>();
-//		Double[] normalisedVector = tranformQuery(keywords, indices);
-//
-//		if (!indices.isEmpty()) {
-//			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
-//				if (relevant(indices, entry.getValue())) {
-//					double cosine = 0.0;
-//					for (Integer index : indices) {
-//						cosine += normalisedVector[index] * entry.getValue()[index];
-//					}
-//					documents.put(entry.getKey(), cosine);
-//				}
-//			}
-//		}
-//		
-//		return documents;
-//	}
-	
 	public Map<Integer, Double> search(String keywords[]) {
 		Map<Integer, Double> documents = new LinkedHashMap<>();
 		List<Integer> indices = new ArrayList<Integer>();
@@ -156,51 +136,36 @@ public class VectorSpaceModel {
 
 		if (!indices.isEmpty()) {
 			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
-				if (relevant(indices, entry.getValue())) {
-					double cosine = 0.0;
-					for (Integer index : indices) {
-						if (entry.getValue()[index] == 0.0) {
-							cosine = 0.0;
-							break;
-						}
-						cosine += normalisedVector[index] * entry.getValue()[index];
-					}
-					if (cosine > 0.0) {
-						documents.put(entry.getKey(), cosine);
-					}
+				double cosine = 0.0;
+				for (int i = 0; i < entry.getValue().length; i++) {
+					cosine += normalisedVector[i] * entry.getValue()[i];
+				}
+				if (cosine > 0.0) {
+					documents.put(entry.getKey(), cosine);
 				}
 			}
 		}
-		
+				
 		return documents;
 	}
 	
-	private boolean relevant(List<Integer> indices, Double[] vector) {
-		for (Integer index : indices) {
-			if (vector[index] > 0.0) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-//	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
+//	public Map<Integer, Double> search(String keywords[]) {
 //		Map<Integer, Double> documents = new LinkedHashMap<>();
 //		List<Integer> indices = new ArrayList<Integer>();
 //		Double[] normalisedVector = tranformQuery(keywords, indices);
-//		
+//
 //		if (!indices.isEmpty()) {
-//			for (int i = 0; i < keywords.length; i++) {
-//				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
-//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(keywords[i]).entrySet()) {
-//						if (!documents.containsKey(entry.getKey())) {
-//							double cosine = 0.0;
-//							for (Integer index : indices) {
-//								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
-//							}
-//							documents.put(entry.getKey(), cosine);
-//						}
+//			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
+//				double cosine = 0.0;
+//				for (Integer index : indices) {
+//					if (entry.getValue()[index] == 0.0) {
+//						cosine = 0.0;
+//						break;
 //					}
+//						cosine += normalisedVector[index] * entry.getValue()[index];
+//				}
+//				if (cosine > 0.0) {
+//					documents.put(entry.getKey(), cosine);
 //				}
 //			}
 //		}
@@ -212,7 +177,7 @@ public class VectorSpaceModel {
 		Map<Integer, Double> documents = new LinkedHashMap<>();
 		List<Integer> indices = new ArrayList<Integer>();
 		Double[] normalisedVector = tranformQuery(keywords, indices);
-
+		
 		if (!indices.isEmpty()) {
 			for (int i = 0; i < keywords.length; i++) {
 				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
@@ -220,12 +185,8 @@ public class VectorSpaceModel {
 						if (!documents.containsKey(entry.getKey())) {
 							double cosine = 0.0;
 							for (Integer index : indices) {
-								if (vectorSpaceModel.get(entry.getKey())[index] == 0.0) {
-									cosine = 0.0;
-									break;
-								}
 								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
-							}	
+							}
 							if (cosine > 0.0) {
 								documents.put(entry.getKey(), cosine);
 							}
@@ -237,6 +198,36 @@ public class VectorSpaceModel {
 		
 		return documents;
 	}
+	
+//	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
+//		Map<Integer, Double> documents = new LinkedHashMap<>();
+//		List<Integer> indices = new ArrayList<Integer>();
+//		Double[] normalisedVector = tranformQuery(keywords, indices);
+//
+//		if (!indices.isEmpty()) {
+//			for (int i = 0; i < keywords.length; i++) {
+//				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
+//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(keywords[i]).entrySet()) {
+//						if (!documents.containsKey(entry.getKey())) {
+//							double cosine = 0.0;
+//							for (Integer index : indices) {
+//								if (vectorSpaceModel.get(entry.getKey())[index] == 0.0) {
+//									cosine = 0.0;
+//									break;
+//								}
+//								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
+//							}	
+//							if (cosine > 0.0) {
+//								documents.put(entry.getKey(), cosine);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		
+//		return documents;
+//	}
 
 	public <K, V extends Comparable<? super Double>> Map<Integer, Double> sort(Map<Integer, Double> documents) {
 		return documents.entrySet().stream()
