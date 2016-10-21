@@ -8,6 +8,8 @@ import javax.xml.xpath.*;
 
 import org.xml.sax.SAXException;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 public class Program {
 	
 	public static void main(String[] args) throws ParserConfigurationException, 
@@ -43,7 +45,7 @@ public class Program {
 			Map<Integer, Double> documents;
 			List<Integer> topDocuments;
 			double start, finish, elapsed;
-			
+						
 			switch (option) {
 				case "1":
 					printInstructions();
@@ -78,7 +80,7 @@ public class Program {
 				default:
 					System.out.println("\nInvalid option.\n");
 					break;
-			}			
+			}	
 		}
 	}
 	

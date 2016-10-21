@@ -19,6 +19,7 @@ public class VectorSpaceModel {
 	private InvertedIndex invertedIndex;
 	private List<String> dictionary;
 	private Map<Integer, Double[]> vectorSpaceModel;
+	private Map<Integer, Integer> frequencies;
 	
 	public VectorSpaceModel(Map<Integer, String> data, String stopwords[]) {
 		totalDocuments = data.size();
@@ -26,6 +27,7 @@ public class VectorSpaceModel {
 		initialiseInvertedIndex(data, stopwords);
 		dictionary = tokeniser.topRank(RANK);
 		initialiseVectorSpaceModel(data);
+		initialiseFrequencies();	
 	}
 	
 	private void initialiseTokeniser(Map<Integer, String> data, String stopwords[]) {
@@ -53,6 +55,22 @@ public class VectorSpaceModel {
 		}
 	}
 	
+	private void initialiseFrequencies() {
+		frequencies = new HashMap<Integer, Integer>();
+		
+		for (Entry<String, Map<Integer, Integer>> term : invertedIndex.getInvertedIndex().entrySet()) {
+			if (dictionary.contains(term.getKey())) {
+				for (Entry<Integer, Integer> document : term.getValue().entrySet()) {
+					if (frequencies.containsKey(document.getKey())) {
+						frequencies.put(document.getKey(), frequencies.get(document.getKey()) + document.getValue());
+					} else {
+						frequencies.put(document.getKey(), document.getValue());
+					}
+				}
+			}
+		}		
+	}
+	
 	public List<String> getDictionary() {
 		return dictionary;
 	}
@@ -63,10 +81,11 @@ public class VectorSpaceModel {
 	
 	public void createVectorSpaceModel() {
 		for (int i = 0; i < dictionary.size(); i++) {
+			double df = (double) invertedIndex.getInvertedIndex().get(dictionary.get(i)).size();
+			double idf = Math.log10(totalDocuments / df);
 			for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(dictionary.get(i)).entrySet()) {
-				double df = (double) invertedIndex.getInvertedIndex().get(dictionary.get(i)).size();
-				double idf = Math.log10(totalDocuments / df);
-				vectorSpaceModel.get(entry.getKey())[i] = ((double) entry.getValue()) * idf;
+				double tf = (double) entry.getValue() / (double) frequencies.get(entry.getKey());
+				vectorSpaceModel.get(entry.getKey())[i] = tf * idf;
 			}
 		}
 	}
@@ -87,23 +106,27 @@ public class VectorSpaceModel {
 	private Double[] tranformQuery(String keywords[], List<Integer> indices) {
 		Map<String, Integer> terms = new HashMap<String, Integer>();
 		Double[] vector = new Double[dictionary.size()];
+		double totalWords = 0.0;
 		
 		Arrays.fill(vector, 0.0);
 		
 		for (int i = 0; i < keywords.length; i++) {
 			if (terms.containsKey(keywords[i])) {
 				terms.put(keywords[i], terms.get(keywords[i]) + 1);
+				totalWords++;
 			} else {
 				terms.put(keywords[i], 1);
+				totalWords++;
 			}
 		}
 		
 		if (!terms.isEmpty()) {
 			for (Entry<String, Integer> entry : terms.entrySet()) {
+				double df = (double) invertedIndex.getInvertedIndex().get(entry.getKey()).size();
+				double idf = Math.log10(totalDocuments / df);
 				if (dictionary.contains(entry.getKey())) {
-					double df = (double) invertedIndex.getInvertedIndex().get(entry.getKey()).size();
-					double idf = Math.log10(totalDocuments / df);
-					vector[dictionary.indexOf(entry.getKey())] = ((double) entry.getValue() * idf);
+					double tf = ((double) entry.getValue()) / totalWords;
+					vector[dictionary.indexOf(entry.getKey())] = tf * idf;
 					indices.add(dictionary.indexOf(entry.getKey()));
 				}
 			}
@@ -149,30 +172,6 @@ public class VectorSpaceModel {
 		return documents;
 	}
 	
-//	public Map<Integer, Double> search(String keywords[]) {
-//		Map<Integer, Double> documents = new LinkedHashMap<>();
-//		List<Integer> indices = new ArrayList<Integer>();
-//		Double[] normalisedVector = tranformQuery(keywords, indices);
-//
-//		if (!indices.isEmpty()) {
-//			for (Entry<Integer, Double[]> entry : vectorSpaceModel.entrySet()) {
-//				double cosine = 0.0;
-//				for (Integer index : indices) {
-//					if (entry.getValue()[index] == 0.0) {
-//						cosine = 0.0;
-//						break;
-//					}
-//						cosine += normalisedVector[index] * entry.getValue()[index];
-//				}
-//				if (cosine > 0.0) {
-//					documents.put(entry.getKey(), cosine);
-//				}
-//			}
-//		}
-//		
-//		return documents;
-//	}
-	
 	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
 		Map<Integer, Double> documents = new LinkedHashMap<>();
 		List<Integer> indices = new ArrayList<Integer>();
@@ -198,36 +197,6 @@ public class VectorSpaceModel {
 		
 		return documents;
 	}
-	
-//	public Map<Integer, Double> searchInvertedIndex(String keywords[]) {
-//		Map<Integer, Double> documents = new LinkedHashMap<>();
-//		List<Integer> indices = new ArrayList<Integer>();
-//		Double[] normalisedVector = tranformQuery(keywords, indices);
-//
-//		if (!indices.isEmpty()) {
-//			for (int i = 0; i < keywords.length; i++) {
-//				if (invertedIndex.getInvertedIndex().containsKey(keywords[i])) {
-//					for (Entry<Integer, Integer> entry : invertedIndex.getInvertedIndex().get(keywords[i]).entrySet()) {
-//						if (!documents.containsKey(entry.getKey())) {
-//							double cosine = 0.0;
-//							for (Integer index : indices) {
-//								if (vectorSpaceModel.get(entry.getKey())[index] == 0.0) {
-//									cosine = 0.0;
-//									break;
-//								}
-//								cosine += normalisedVector[index] * vectorSpaceModel.get(entry.getKey())[index];
-//							}	
-//							if (cosine > 0.0) {
-//								documents.put(entry.getKey(), cosine);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		
-//		return documents;
-//	}
 
 	public <K, V extends Comparable<? super Double>> Map<Integer, Double> sort(Map<Integer, Double> documents) {
 		return documents.entrySet().stream()
