@@ -1,0 +1,54 @@
+The number of distinct words: 7571
+The total number of words: 209581
+The top 50 frequent words:
+the 18695
+of 11356
+and 5711
+a 5322
+to 4404
+in 4253
+is 4110
+for 3268
+are 2427
+with 2084
+by 1702
+at 1592
+that 1570
+on 1556
+flow 1517
+be 1269
+an 1261
+as 1102
+pressure 1092
+this 1080
+from 1067
+boundary 970
+which 969
+number 914
+results 873
+it 855
+layer 842
+mach 733
+theory 706
+was 698
+method 638
+shock 638
+been 589
+were 583
+two 565
+surface 551
+obtained 536
+given 517
+heat 503
+these 500
+body 495
+velocity 482
+temperature 478
+has 478
+or 469
+solution 468
+wing 466
+1 455
+made 449
+equations 445
+
